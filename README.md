@@ -34,7 +34,7 @@ All the below applies to commit (https://github.com/krjj/kshitij-example-code/co
 
 
 
-Time to index all the content (including database persistence) : Around 15-16 minutes on Intel i3 2 core processor with 8 GB of memory (https://ark.intel.com/content/www/us/en/ark/products/122590/intel-core-i3-7020u-processor-3m-cache-2-30-ghz.html).
+Time to index all the content (including database persistence) : Around 10-16 minutes on Intel i3 2 core processor with 8 GB of memory (https://ark.intel.com/content/www/us/en/ark/products/122590/intel-core-i3-7020u-processor-3m-cache-2-30-ghz.html).
 
 
 Memory consumption (chromedev tools)
@@ -67,6 +67,14 @@ Schema of the collection
     subjects: [String],
     license: String,
 });`
+
+Variation of this mongo query can be used to get the result based on title, author, publicationDate 
+`db.getCollection('metas').find({ $or: [
+                            {title: /^Moby Dick/i},
+                            {author : /^Melville, Herman/i},
+                            {publicationDate : /^2001-01-01/}
+                        ], })
+`
 
 In case if SQL database is used, normalization of data is required. Multiple tables i.e author, publisher, book will be created. JOINs can be used to query the data.
 
