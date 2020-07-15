@@ -4,16 +4,23 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
+    "start" : "node main.js",
+    "debug" : "node --inspect main.js",
     "test": "mocha",
     "coverage": "nyc --reporter=lcov --reporter=text-summary npm run test",
-    "format": "yarn prettier --write ."
+    "format": "yarn prettier --write .",
+    "downloadmeta" : "node metaDownloader.js" 
   },
   "dependencies": {
+    "axios": "^0.19.2",
     "dotenv": "^8.2.0",
     "glob": "^7.1.6",
     "mongoose": "^5.9.24",
     "p-limit": "^3.0.2",
     "p-queue": "^6.5.0",
+    "progress": "^2.0.3",
+    "tar-fs": "^2.1.0",
+    "unbzip2-stream": "^1.4.3",
     "xml2js": "^0.4.23",
     "xmldom": "^0.3.0"
   },

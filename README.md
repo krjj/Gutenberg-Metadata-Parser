@@ -17,6 +17,8 @@ Test
 Coverage Test 
 `yarn run coverage`
 
+Download the Gutenberg meta file tar.bz2
+`yarn run downloadmeta`
 
 Mocha + Chai is used as test framework.
 
