@@ -5,7 +5,7 @@ function parseRDF(xmlPath) {
   return new Promise((resolve, reject) => {
     fs.readFile(xmlPath, "utf8", (err, xml) => {
       if (err) {
-        reject("Error while reading file : " + xmlPath);
+        reject("Error while reading file : " + xmlPath + " " + err);
       }
 
       try {
@@ -14,7 +14,7 @@ function parseRDF(xmlPath) {
             throw "parsing of xml string failed";
           }
 
-          let output = {
+          const output = {
             id: 0,
             title: "",
             author: [],
@@ -26,9 +26,9 @@ function parseRDF(xmlPath) {
           };
 
           // ID
-          if (result["rdf:RDF"]["pgterms:ebook"][0]["$"]["rdf:about"]) {
+          if (result["rdf:RDF"]["pgterms:ebook"][0].$["rdf:about"]) {
             output.id = parseInt(
-              result["rdf:RDF"]["pgterms:ebook"][0]["$"]["rdf:about"]
+              result["rdf:RDF"]["pgterms:ebook"][0].$["rdf:about"]
                 .toString()
                 .split("/")[1]
             );
@@ -43,8 +43,8 @@ function parseRDF(xmlPath) {
 
           // Author ITERATE
           if (result["rdf:RDF"]["pgterms:ebook"][0]["dcterms:creator"]) {
-            let authors = [];
-            for (let agent of result["rdf:RDF"]["pgterms:ebook"][0][
+            const authors = [];
+            for (const agent of result["rdf:RDF"]["pgterms:ebook"][0][
               "dcterms:creator"
             ]) {
               if (agent["pgterms:agent"]) {
@@ -75,8 +75,8 @@ function parseRDF(xmlPath) {
 
           // Language ITERATE
           if (result["rdf:RDF"]["pgterms:ebook"][0]["dcterms:language"]) {
-            let language = [];
-            for (let lang of result["rdf:RDF"]["pgterms:ebook"][0][
+            const language = [];
+            for (const lang of result["rdf:RDF"]["pgterms:ebook"][0][
               "dcterms:language"
             ]) {
               language.push(
@@ -90,9 +90,9 @@ function parseRDF(xmlPath) {
 
           // Subjects ITERATE
           if (result["rdf:RDF"]["pgterms:ebook"][0]["dcterms:subject"]) {
-            let subjects = [];
+            const subjects = [];
 
-            for (let subject of result["rdf:RDF"]["pgterms:ebook"][0][
+            for (const subject of result["rdf:RDF"]["pgterms:ebook"][0][
               "dcterms:subject"
             ]) {
               subjects.push(subject["rdf:Description"][0]["rdf:value"][0]);
@@ -111,7 +111,6 @@ function parseRDF(xmlPath) {
           resolve(output);
         });
       } catch (e) {
-        console.log(e);
         reject("Error while parsing xml : " + xmlPath + " : " + e);
       }
     });
@@ -119,7 +118,7 @@ function parseRDF(xmlPath) {
 }
 
 // usage
-/* 
+/*
 parseRDF('rdf-repository/rdf-files/cache/epub/24017/pg24017.rdf').then((data) => {
     console.log(data)
 }).catch((e) => {

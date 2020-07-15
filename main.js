@@ -1,77 +1,77 @@
+require("dotenv").config();
+
 const glob = require("glob");
 const { parseRDF } = require("./libParser");
+const { connect, saveRecordToDb } = require("./dbHelper");
 
+var startTime,
+  endTime = 0;
 
-
-var mongoose = require('mongoose');
-
-mongoose.connect('mongodb://localhost/guntenberg').then(console.log('Connected to DB')).catch((e) => {
-    console.error("Unable to connect to mongodb")
-    process.exit()
-});
-
-
-var metaSchema = mongoose.Schema({
-    id: Number,
-    title: String,
-    author: [String],
-    publisher: String,
-    publicationDate: String,
-    language: [String],
-    subjects: [String],
-    license: String,
-});
-
-var metaCollection = mongoose.model('meta', metaSchema);
-
-
-function saveRecordToDb(data) {
-    return new Promise((resolve, reject) => {
-        metaCollection.create({
-            id: data.id,
-            title: data.title,
-            author: data.author,
-            publisher: data.publisher,
-            publicationDate: data.publicationDate,
-            language: data.language,
-            subjects: data.subjects,
-            license: data.license,
-        }).then((doc) => {
-            resolve()
-        }).catch((e) => {
-            reject(e)
-        })
-    })
-}
-
-// single file parsing 
- parseRDF("test/sample data/pg2701.rdf")
-    .then((data) => {
-        saveRecordToDb(data).then((d) => {
-            console.log('saved')
-        }).catch((e) => {
-            console.log("not saved")
-        })
-    })
-    .catch((e) => {
-        console.log(e);
+connect(process.env["MONGO-URL"])
+  .then((mongoose) => {
+    const { default: PQueue } = require("p-queue");
+    const queue = new PQueue({
+      concurrency: parseInt(process.env["CONCURRENCY"]),
     });
- 
 
-// read all files and parse from rdf-repository folder
-glob(`rdf-repository/rdf-files/**/*.rdf`, {}, function (er, files) {
-    console.log(files.length + " *.rdf files found");
+    queue.on("idle", () => {
+      if (queue.size == 0 && queue.pending == 0) {
+        console.log("All files processed. Now exiting.");
+        endTime = Date.now();
+        console.log("Finished in ", (endTime - startTime) / 1000, "secs");
+        process.exit();
+      }
 
-    if (!er) {
-        for (let f of files) {
-            parseRDF(f)
-                .then((data) => {
-                  // PERSIST TO DB HERE USING saveRecordToDb()
-                  console.log(data.id)
-                })
-                .catch((e) => {
-                    console.log(e);
-                });
-        }
-    }
-});
+      console.log(
+        ` Queue is idle.  Size: ${queue.size}  Pending: ${queue.pending}`
+      );
+    });
+
+    queue.on("active", () => {
+      console.log(` Queue Size: ${queue.size}  Pending: ${queue.pending}`);
+    });
+
+    startTime = Date.now();
+
+    // read all files and parse from rdf-repository folder, then persist data to db
+    glob("rdf-repository/rdf-files/**/*.rdf", {}, function (er, files) {
+      // Enforce artificial limit
+      //files = files.slice(0, 10000)
+
+      if (er) {
+        console.log(" Unable to read directory. Now exiting.");
+        process.exit();
+      }
+
+      console.log(files.length + " *.rdf files found");
+
+      for (const f of files) {
+        console.log("Adding ", f, "to the queue");
+        queue.add(() => parseRdfAndSaveToDb(f));
+      }
+    });
+  })
+  .catch((e) => {
+    console.log(e);
+    process.exit();
+  });
+
+// helpers
+function parseRdfAndSaveToDb(path) {
+  return new Promise((resolve, reject) => {
+    parseRDF(path)
+      .then((data) => {
+        saveRecordToDb(data)
+          .then((d) => {
+            resolve();
+          })
+          .catch((e) => {
+            reject(e);
+          });
+      })
+      .catch((e) => {
+        console.error(e);
+        reject(e);
+      });
+  });
+}
