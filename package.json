@@ -1,0 +1,22 @@
+{
+  "name": "gutenberg-rdf-parser",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "test": "mocha",
+    "coverage": "nyc --reporter=lcov --reporter=text-summary npm run test"
+  },
+  "dependencies": {
+    "glob": "^7.1.6",
+    "mongoose": "^5.9.24",
+    "xml2js": "^0.4.23",
+    "xmldom": "^0.3.0"
+  },
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "mocha": "^8.0.1",
+    "nyc": "^15.1.0",
+    "prettier": "2.0.5"
+  }
+}
