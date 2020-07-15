@@ -34,7 +34,7 @@ connect(process.env['MONGO-URL'])
     startTime = Date.now()
 
     // read all files and parse from rdf-repository folder, then persist data to db
-    glob('rdf-repository/rdf-files/**/*.rdf', {}, function (er, files) {
+    glob('rdf-repository/**/*.rdf', {}, function (er, files) {
       // Enforce artificial limit
       // files = files.slice(0, 10000)
 
@@ -44,6 +44,10 @@ connect(process.env['MONGO-URL'])
       }
 
       console.log(files.length + ' *.rdf files found')
+      
+      if(files.length===0){
+          process.exit()
+      }
 
       for (const f of files) {
         console.log('Adding ', f, 'to the queue')
