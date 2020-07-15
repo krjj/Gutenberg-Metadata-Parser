@@ -7,7 +7,7 @@
   xmlns:pgterms="http://www.gutenberg.org/2009/pgterms/"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
 >
-  <pgterms:ebooks rdf:about="ebooks/2702">
+  <pgterms:ebooks rdf:about="ebooks/2702d">
     <dcterms:hasFormat>
       <pgterms:file rdf:about="http://www.gutenberg.org/ebooks/2701.epub.images">
         <dcterms:format>
